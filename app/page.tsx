@@ -1,25 +1,26 @@
 "use client";
 const icons = require('@ifrc-go/icons');
-import pkg from 'package.json';
+const pkg = require('package.json');
+
 import toast, { Toaster } from 'react-hot-toast';
-import Link from 'next/link'
 import SadFaceIcon from './svg/sadface.svg';
 import GoIcon from './svg/logo.svg';
 import DotIcon from './svg/dot.svg';
 import SearchIcon from './svg/search.svg';
 import { useDebounce } from './useDebounce';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, ElementType } from 'react';
 
 function Icons({ search }: { search: string }) {
-    const filteredIcons = search.length > 1 ? Object.keys(icons)
+    const filteredIcons: Record<string, ElementType> = search.length > 1 ? Object.keys(icons)
     .filter(key => key.match(new RegExp(search, "i")))
     .reduce((acc, key) => {
-    acc[key] = icons[key];
-    return acc;
-    }, {}) : icons;
+        acc[key] = icons[key];
+        return acc;
+    }, {} as Record<string, ElementType>) : icons;
 
-    const [selectedIcon, setSelectedIcon]  = useState();
+    const [selectedIcon, setSelectedIcon]  = useState<string>();
+
     const handleIconClick = useCallback((value: string) => {
         navigator.clipboard.writeText(value);
         toast(`Copied ${value} to clipboard`);
@@ -39,23 +40,22 @@ function Icons({ search }: { search: string }) {
         )
     }
 
-    if (filteredIcons) {
-        return (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]
-                gap-6 pb-16 pt-10">
-                {Object.entries(filteredIcons).map(([key, Component]) => (
-                    <div className={`mx-auto cursor-pointer rounded-lg p-6 text-3xl text-slate-900
+    return (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]
+            gap-6 pb-16 pt-10">
+            {Object.entries(filteredIcons).map(([key, Component]) => (
+                <div className={`mx-auto cursor-pointer rounded-lg p-6 text-3xl text-slate-900
                         hover:shadow-md ${key === selectedIcon ? 'bg-slate-100' : 'bg-white'}`}
-                        role="button"
-                        key={key}
-                        onClick={() => handleIconClick(key)}
-                    >
-                        <Component />
-                    </div>
-                ))}
-            </div>
-        )
-    }
+                    role="button"
+                    aria-label={key}
+                    key={key}
+                    onClick={() => handleIconClick(key)}
+                >
+                    <Component />
+                </div>
+            ))}
+        </div>
+    )
 }
 
 function Header() {
@@ -73,7 +73,7 @@ function Header() {
                             <div
                                 aria-label="Version"
                                 className="flex items-center rounded-full border border-slate-700/10
-                                    bg-slate-100 py-1.5 pl-2.5 pr-3 text-xs font-semibold text-slate-500
+                                    bg-slate-100 py-1.5 pl-2.5 pr-3 text-xs font-semibold text-slate-800
                                     transition hover:border-slate-700/20"
                             >
                                 {`v${pkg.dependencies['@ifrc-go/icons'].substring(1)}`}
